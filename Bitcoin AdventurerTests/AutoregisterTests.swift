@@ -67,11 +67,14 @@ class AutoregisterTests: XCTestCase {
   // MARK: - Tests
   
   func testPriceResponseData() {
-    XCTFail("Test not yet written.")
+    let price = container ~> (Price.self, argument: "789654")
+    let response = container ~> (PriceResponse.self, argument: price)
+    XCTAssertEqual(response.data.amount, "789654")
   }
   
   func testPrice() {
-    XCTFail("Test not yet written.")
+    let price = container ~> (Price.self, argument: "789654")
+    XCTAssertEqual(price.amount, "789654")
   }
 
 }
