@@ -63,7 +63,8 @@ class BasicTests: XCTestCase {
   // MARK: - Tests
   
   func testPriceResponseData() {
-    XCTFail("Test not yet written.")
+    let response = container.resolve(PriceResponse.self)!
+    XCTAssertEqual(response.data.amount, "999456")
   }
   
 }
