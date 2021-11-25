@@ -33,6 +33,29 @@ import Foundation
 
 @testable import Bitcoin_Adventurer
 
+struct SimulatedNetworking: Networking {
+  let filename: String
+
+  func request(from: Endpoint, completion: @escaping CompletionHandler) {
+    let data = readJSON(name: filename)
+    completion(data, nil)
+  }
+
+  private func readJSON(name: String) -> Data? {
+    let bundle = Bundle(for: SimulatedNetworkTests.self)
+    guard let url = bundle.url(forResource: name, withExtension: "json") else { return nil }
+
+    do {
+      return try Data(contentsOf: url, options: .mappedIfSafe)
+    }
+    catch {
+      XCTFail("Error occurred parsing test data")
+      return nil
+    }
+  }
+
+}
+
 enum DataSet: String {
     case one
     case two
@@ -53,6 +76,15 @@ class SimulatedNetworkTests: XCTestCase {
   
   override func setUp() {
     super.setUp()
+
+    container.autoregister(Networking.self, argument: String.self, initializer: SimulatedNetworking.init)
+
+    DataSet.all.forEach { dataSet in
+      container.register(BitcoinPriceFetcher.self, name: dataSet.name) { resolver in
+        let networking = resolver ~> (Networking.self, argument: dataSet.filename)
+        return BitcoinPriceFetcher(networking: networking)
+      }
+    }
   }
   
   override func tearDown() {
