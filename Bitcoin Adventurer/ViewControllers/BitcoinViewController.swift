@@ -34,7 +34,7 @@ internal class BitcoinViewController: UIViewController {
   @IBOutlet weak private var primary: UILabel!
   @IBOutlet weak private var partial: UILabel!
 
-  let fetcher = BitcoinPriceFetcher(networking: HTTPNetworking())
+  var fetcher: PriceFetcher?
   
   private let dollarsDisplayFormatter: NumberFormatter = {
     let formatter = NumberFormatter()
@@ -71,6 +71,7 @@ internal class BitcoinViewController: UIViewController {
   }
   
   private func requestPrice()  {
+    guard let fetcher = fetcher else { fatalError("Missing dependencies") }
     fetcher.fetch { response in
       guard let response = response else { return }
 
